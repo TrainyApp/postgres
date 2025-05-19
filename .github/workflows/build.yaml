@@ -78,15 +78,6 @@ jobs:
         env: 
           TAGS: ${{ steps.meta.outputs.tags }}
         run: |
-          # Build up annotation arguments safely
-          readarray -t annotations <<< "$DOCKER_METADATA_OUTPUT_LABELS"
-
-          # Initialize array for annotation flags
-          annotation_flags=()
-          for annotation in "${annotations[@]}"; do
-            annotation_flags+=(--annotation "$annotation")
-          done
-
           echo "$TAGS" | while IFS= read -r tag; do
-            docker buildx imagetools create ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-arm64 ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-amd64 --tag=$tag $ANNOTATION_FLAGS
+            docker buildx imagetools create ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-arm64 ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-amd64 --tag=$tag
           done
