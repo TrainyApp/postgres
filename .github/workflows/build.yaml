@@ -81,7 +81,7 @@ jobs:
           # Prepare annotation flags from DOCKER_METADATA_OUTPUT_LABELS
           ANNOTATION_FLAGS=""
           while IFS= read -r annotation; do
-            ANNOTATION_FLAGS+=" --annotation $annotation"
+            ANNOTATION_FLAGS+=' --annotation="$annotation"'
           done <<< "$DOCKER_METADATA_OUTPUT_LABELS"
 
           echo "$TAGS" | while IFS= read -r tag; do
