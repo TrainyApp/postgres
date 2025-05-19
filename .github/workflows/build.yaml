@@ -60,19 +60,18 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create and push multi-arch manifest
-        run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-arm64
-          
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-          # Optionally tag 'latest' on main
-          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-              --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-amd64 \
-              --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64
-            docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          fi
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha
+          flavor: latest=${{ github.ref == 'refs/heads/main' }}
+      - uses: Noelware/docker-manifest-action@v1
+        with:
+          tags: ${{ steps.meta.outputs.tags }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          inputs: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-arm64,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-amd64
+          push: true
