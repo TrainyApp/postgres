@@ -74,8 +74,10 @@ jobs:
             type=ref,event=branch
             type=sha
           flavor: latest=${{ github.ref == 'refs/heads/main' }}
-      - uses: Noelware/docker-manifest-action@v1
-        with:
-          tags: ${{ steps.meta.outputs.tags }}
-          inputs: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-arm64,${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}-amd64
-          push: true
+      - name: Merge
+        env: 
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          echo "$TAGS" | while IFS= read -r tag; do
+            docker buildx imagetools create ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-arm64 ghcr.io/trainyapp/postgres:sha-07e7eade33ccb579417c7f2a96374177eff91570-amd64 --tag=$tag
+          done
