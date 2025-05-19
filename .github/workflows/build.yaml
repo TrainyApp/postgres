@@ -73,7 +73,6 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha
-            latest=${{github.ref == 'refs/heads/main' }}
           flavor: latest=${{ github.ref == 'refs/heads/main' }}
       - uses: Noelware/docker-manifest-action@v1
         with:
